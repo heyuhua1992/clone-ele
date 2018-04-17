@@ -1,5 +1,5 @@
 <template>
-<div class="ratings">
+<div class="ratings" ref="ratings">
   <div class="ratings-content">
     <div class="overview">
       <div class="overview-left">
@@ -29,12 +29,49 @@
       </div>
     </div>
     <Split />
-    <RatingSelect :selectType="selectType"
+    <RatingSelect class="ratingselect"
+                  :selectType="selectType"
                   :onlyContent="onlyContent"
                   :desc="desc"
                   :ratings="ratings"
                   @select="selectRating"
                   @toggle="toggleContent"/>
+    <div class="rating-wrapper">
+      <ul>
+        <li class="rating-item"
+            v-for="(rating, index) in ratings"
+            :key="index"
+            v-if="needShow(rating.rateType,rating.text)" >
+          <div class="avatar">
+            <img :src="rating.avatar" width="28" height="28">
+          </div>
+          <div class="content">
+            <h1 class="name">{{ rating.username }}</h1>
+            <div class="star-wrapper">
+              <Star class="star" :size="24" :score="rating.score"/>
+              <span class="delivery"
+                    v-if="rating.deliveryTime">
+                {{ rating.deliveryTime }}分钟送达
+              </span>
+            </div>
+            <p class="text">
+              {{ rating.text }}
+            </p>
+            <div class="recommend">
+              <span :class="iconThumb(rating)"></span>
+              <span class="item"
+                    v-for="(item, index) in rating.recommend"
+                    :key="index">
+                {{ item }}
+              </span>
+            </div>
+            <div class="time">
+              {{ rating.rateTime | formatDate }}
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 </template>
@@ -43,6 +80,8 @@
 import Star from 'components/star/Star'
 import Split from 'components/split/Split'
 import RatingSelect from 'components/ratingselect/RatingSelect'
+import BScroll from 'better-scroll'
+import {formatDate} from 'common/js/date'
 const ALL = 2
 export default {
   name: 'ratings',
@@ -67,6 +106,12 @@ export default {
     this.$axios.get('/api/appData')
       .then(rep => {
         this.ratings = rep.data.data.ratings
+        // 保证加载完毕
+        this.$nextTick(() => {
+          this.scroll = new BScroll(this.$refs.ratings, {
+            click: true
+          })
+        })
       })
       .catch(error => {
         console.log(error)
@@ -94,6 +139,27 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    needShow (type, text) {
+      if (this.onlyContent === true && !text) {
+        return false
+      } else if (this.selectType === ALL) {
+        return true
+      } else if (this.selectType === type) {
+        return true
+      }
+    },
+    iconThumb (rating) {
+      return {
+        'icon-thumb_up': rating.rateType === 0,
+        'icon-thumb_down': rating.rateType === 1
+      }
+    }
+  },
+  filters: { // 过滤器
+    formatDate (time) {
+      let date = new Date(time)
+      return formatDate(date, 'yyyy-MM-dd hh:mm')
     }
   },
   components: {
@@ -105,6 +171,7 @@ export default {
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>
+@import "../../common/stylus/mixin.styl"
 .ratings
   position absolute
   top 180px
@@ -139,7 +206,6 @@ export default {
           line-height 10px
           font-size 10px
           color rgb(147, 153, 159)
-
       .overview-right
         flex 1
         padding 6px 24px 6px 24px
@@ -158,6 +224,7 @@ export default {
             display inline-block
             line-height 18px
             vertical-align top
+            margin 0 12px
           .score
             display inline-block
             line-height 18px
@@ -174,4 +241,70 @@ export default {
             margin-left 12px
             font-size 12px
             color: rgb(147, 153, 159)
+    .ratingselect
+      padding 0 24px
+    .rating-wrapper
+      padding 0 18px
+      .rating-item
+        display flex
+        padding 18px 0
+        border-1px(rgba(7, 17, 27, .1))
+        .avatar
+          flex 0 0 28px
+          width 28px
+          margin-left 12px
+          img
+            border-radius 50%
+        .content
+          position relative
+          flex 1
+          .name
+            margin-bottom 4px
+            line-height 12px
+            font-size 10px
+            color rgb(7, 17, 27)
+          .star-wrapper
+            margin-bottom 6px
+            font-size 0
+            .star
+              display inline-block
+              margin-right 6px
+              vertical-align top
+            .delivery
+              display inline-block
+              vertical-align top
+              line-height 12px
+              font-size 10px
+              color rgb(147, 153, 159)
+          .text
+            margin-bottom 8px
+            line-height 18px
+            color rgb(7, 17, 27)
+            font-size 12px
+          .recommend
+            line-height 16px
+            font-size 0
+            .icon-thumb_up,
+            .icon-thumb_down,
+            .item
+              display inline-block
+              margin 0 8px 4px 0
+              font-size 9px
+            .icon-thumb_down
+              color rgb(147, 153, 159)
+            .icon-thumb_up
+              color rgb(0, 160, 220)
+            .item
+              padding 0 6px
+              border 1px solid rgba(7, 17, 27, .1)
+              border-radius 1px
+              color rgb(147, 153, 159)
+              background-color #FFF
+          .time
+            position absolute
+            top 0
+            right 0
+            line-height 12px
+            font-size 10px
+            color rgb(147, 153, 159)
 </style>
