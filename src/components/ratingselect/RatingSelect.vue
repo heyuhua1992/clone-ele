@@ -27,7 +27,8 @@
     </span>
   </div>
   <div class="switch"
-       @click="toggleContent" :class="{'on': onlyContent}">
+       @click="toggleContent"
+       :class="{'on': onlyContent}">
     <span class="icon-check_circle"></span>
     <span class="text">只看有内容的评价</span>
   </div>
