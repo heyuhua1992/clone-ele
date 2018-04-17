@@ -29,6 +29,12 @@
       </div>
     </div>
     <Split />
+    <RatingSelect :selectType="selectType"
+                  :onlyContent="onlyContent"
+                  :desc="desc"
+                  :ratings="ratings"
+                  @select="selectRating"
+                  @toggle="toggleContent"/>
   </div>
 </div>
 </template>
@@ -36,16 +42,64 @@
 <script>
 import Star from 'components/star/Star'
 import Split from 'components/split/Split'
+import RatingSelect from 'components/ratingselect/RatingSelect'
+const ALL = 2
 export default {
   name: 'ratings',
+  data () {
+    return {
+      ratings: [],
+      selectType: ALL,
+      onlyContent: true,
+      desc: {
+        all: '全部',
+        positive: '满意',
+        nagative: '不满意'
+      }
+    }
+  },
   props: {
     seller: {
       type: Object
     }
   },
+  beforeCreate () {
+    this.$axios.get('/api/appData')
+      .then(rep => {
+        this.ratings = rep.data.data.ratings
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  },
+  methods: {
+    selectRating (type) {
+      this.selectType = type
+      // 下面的感觉可以不要
+      this.$nextTick()
+        .then(() => {
+          this.scroll.refresh()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    toggleContent () {
+      this.onlyContent = !this.onlyContent
+      // 下面的感觉可以不要
+      this.$nextTick()
+        .then(() => {
+          this.scroll.refresh()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  },
   components: {
     Star,
-    Split
+    Split,
+    RatingSelect
   }
 }
 </script>
