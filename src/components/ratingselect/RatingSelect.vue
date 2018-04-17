@@ -36,6 +36,10 @@
 
 <script>
 const ALL = 2
+// 推荐评价
+const POSITIVE = 0
+// 吐槽评价
+const NEGATIVE = 1
 export default {
   name: 'rating-select',
   props: {
@@ -74,10 +78,16 @@ export default {
   },
   computed: {
     positives () {
-      return this.ratings
+      return this.ratings.filter((rating) => {
+        // 去掉不满足条件的
+        return rating.rateType === POSITIVE
+      })
     },
     nagatives () {
-      return this.ratings
+      return this.ratings.filter((rating) => {
+        // 去掉不满足条件的
+        return rating.rateType === NEGATIVE
+      })
     }
   }
 }
