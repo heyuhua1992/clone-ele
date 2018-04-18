@@ -144,7 +144,7 @@ export default {
     },
     selectMenu (index) {
       let foodList = this.$refs.foodList
-      this.foodsScroll.scrollToElement(foodList[index], 300, 0, 1)
+      this.foodsScroll.scrollToElement(foodList[index], 1, 0, 1)
     },
     addFood (target) {
       this._drop(target)
