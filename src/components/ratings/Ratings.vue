@@ -171,6 +171,7 @@ export default {
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus" scoped>
+// 如果不在这里使用@import 在script中使用是否可以？可以使用link来导入么
 @import "../../common/stylus/mixin.styl"
 .ratings
   position absolute
