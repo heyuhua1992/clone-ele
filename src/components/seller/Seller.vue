@@ -38,6 +38,26 @@
       </div>
     </div>
     <Split />
+    <div class="bulletin">
+      <h1 class="title">
+        公告与活动
+      </h1>
+      <div class="content-wrapper border-1px">
+        <p class="content">
+          {{ seller.bulletin }}
+        </p>
+      </div>
+      <ul class="supports"
+          v-if="seller.supports">
+        <li class="support-item border-1px"
+            v-for="(item, index) in seller.supports"
+            :key="index">
+          <span class="icon" :class="classMap[item.type]"></span>
+          <span class="text">{{ item.description }}</span>
+        </li>
+      </ul>
+    </div>
+    <Split />
     <div class="pics">
       <h1 class="title">
         商家实景
@@ -71,12 +91,21 @@
 import Star from 'components/star/Star'
 import Split from 'components/split/Split'
 import {saveToLocal, loadFromLocal} from 'common/js/store'
+import BScroll from 'better-scroll'
 export default {
   name: 'seller',
   props: {
     seller: {
       type: Object
     }
+  },
+  beforeCreate () {
+    this.classMap = ['decrease', 'discount', 'guarantee', 'invoice', 'special']
+    this.$nextTick()
+      .then(() => {
+        this._initScroll()
+        this._initPics()
+      })
   },
   data () {
     return {
@@ -91,6 +120,38 @@ export default {
       this.favorite = !this.favorite
       this.seller.id = 'id'
       saveToLocal(this.seller.id, 'favorite', this.favorite)
+    },
+    _initScroll () {
+      if (!this.scroll) {
+        this.scroll = new BScroll(this.$refs.seller, {
+          click: true
+        })
+      } else {
+        this.scroll.refresh()
+      }
+    },
+    _initPics () {
+      if (this.seller.pics) {
+        let picWidth = 120
+        let margin = 6
+        let width = (picWidth + margin) * this.seller.pics.length - margin
+        this.$refs.picList.style.width = width + 'px'
+        this.$nextTick()
+          .then(() => {
+            if (!this.picScroll) {
+              this.picScroll = new BScroll(this.$refs.picWrapper, {
+                // click: true,
+                scrollX: true,
+                eventPassthrough: 'vertical'
+              })
+            } else {
+              this.picScroll.refresh()
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
     }
   },
   computed: {
@@ -176,6 +237,52 @@ export default {
           line-height 10px
           font-size 10px
           color rgb(77, 85, 93)
+    .bulletin
+      padding 18px 18px 0 18px
+      .title
+        margin-bottom 8px
+        line-height 14px
+        color rgb(7, 17, 27)
+        font-size 14px
+      .content-wrapper
+        padding 0 12px 16px
+        border-1px(rgba(7, 17, 27, .1))
+        .content
+          font-size 12px
+          font-weight 200
+          line-height 24px
+          color rgb(240, 20, 20)
+      .supports
+        .support-item
+          padding 16px 12px
+          border-1px(rgba(7, 17, 27, .1))
+          font-size 0
+          &:last-child
+            border-none
+          .icon
+            display inline-block
+            width 16px
+            height 16px
+            margin-right 6px
+            background-size 16px 16px
+            background-repeat no-repeat
+            vertical-align top
+            &.decrease
+              bg-image ('decrease_4')
+            &.discount
+              bg-image ('discount_4')
+            &.guarantee
+              bg-image ('guarantee_4')
+            &.invoice
+              bg-image ('invoice_4')
+            &.special
+              bg-image ('special_4')
+          .text
+            font-size 12px
+            font-weight 200
+            color rgb(7, 17, 27)
+            line-height 16px
+            vertical-align top
     .pics
       padding 18px
       .title
@@ -204,11 +311,11 @@ export default {
         border-1px(rgba(7, 17, 27, .1))
         line-height 14px
         font-size 14px
-        .info-item
-          padding 16px 12px
-          line-height 16px
-          border-1px(rgba(7, 17, 27, .1))
-          font-size 12px
-          &:last-child
-            border-none
+      .info-item
+        padding 16px 12px
+        line-height 16px
+        border-1px(rgba(7, 17, 27, .1))
+        font-size 12px
+        &:last-child
+          border-none
 </style>
