@@ -44,13 +44,7 @@ export default {
     }
   },
   beforeCreate () {
-    this.$axios.get('static/data.json')
-      .then(rep => {
-        // console.log(rep)
-      })
-      .catch(error => {
-        console.log(error)
-      })
+    // 使用devServer 的服务器，请求数据。不能在生产环境下使用
     this.$axios.get('/api/appData')
       .then(rep => {
         this.seller = rep.data.data.seller
@@ -58,6 +52,17 @@ export default {
       .catch(error => {
         console.log(error)
       })
+    // 通过代理获取数据
+    // 没有服务器
+    // this.$axios.get('/proxy/data')
+    //   .then(rep => {
+    //     console.log('通过代理获取数据')
+    //     console.log(rep)
+    //     this.seller = rep.data.data.seller
+    //   })
+    //   .catch(error => {
+    //     console.log(error)
+    //   })
   },
   components: {
     vHeader: vHeader
